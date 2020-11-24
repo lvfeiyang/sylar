@@ -90,10 +90,10 @@ bool Redis::connect(const std::string& ip, int port, uint64_t ms) {
     timeval tv = {(int)ms / 1000, (int)ms % 1000 * 1000};
     auto c = redisConnectWithTimeout(ip.c_str(), port, tv);
     if(c) {
+        m_context.reset(c, redisFree);
         if(m_cmdTimeout.tv_sec || m_cmdTimeout.tv_usec) {
             setTimeout(m_cmdTimeout.tv_sec * 1000 + m_cmdTimeout.tv_usec / 1000);
         }
-        m_context.reset(c, redisFree);
 
         if(!m_passwd.empty()) {
             auto r = (redisReply*)redisCommand(c, "auth %s", m_passwd.c_str());
